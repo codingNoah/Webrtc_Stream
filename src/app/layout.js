@@ -1,4 +1,6 @@
 import { Inter } from "next/font/google";
+import "@stream-io/video-react-sdk/dist/css/styles.css";
+
 import "./globals.css";
 import { ClerkProvider, SignedIn, UserButton } from "@clerk/nextjs";
 import SideBar from "@/components/SideBar";
@@ -7,6 +9,7 @@ import { links } from "@/constants/links";
 import TopBar from "@/components/TopBar";
 import NavDrawer from "@/components/NavDrawer";
 import StreamVideoProvider from "@/providers/StreamVideoProvider";
+import { Toaster } from "@/components/ui/toaster";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
@@ -24,6 +27,7 @@ export default function RootLayout({ children }) {
               <SideBar />
 
               <div className="flex-1 flex flex-col  overflow-y-auto ">
+                <Toaster />
                 <TopBar />
                 <main className="flex-1  p-5">{children}</main>
               </div>

@@ -17,6 +17,7 @@ function StreamVideoProvider({ children }) {
   const { user } = useUser();
 
   useEffect(() => {
+    console.log(user);
     if (!user) return;
 
     const client = new StreamVideoClient({

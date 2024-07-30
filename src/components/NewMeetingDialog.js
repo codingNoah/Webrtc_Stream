@@ -8,9 +8,9 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
-import { CalendarRange } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { CalendarRange, Router } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { format } from "date-fns";
 
@@ -22,9 +22,16 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Textarea } from "./ui/textarea";
+import { createMeeting } from "@/utils/meeting";
+import { useStreamVideoClient } from "@stream-io/video-react-sdk";
+import { useRouter } from "next/navigation";
 function NewMeetingDialog({ setIsOpen, isOpen, schedule }) {
   const [date, setDate] = useState();
   const [descriptionInput, setDescriptionInput] = useState("");
+  const [titleInput, setTitleInput] = useState("");
+
+  const client = useStreamVideoClient();
+  const router = useRouter();
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -33,8 +40,22 @@ function NewMeetingDialog({ setIsOpen, isOpen, schedule }) {
           <DialogTitle>
             {schedule ? "Schedule Meeting" : "Create Meeting"}
           </DialogTitle>
+          <DialogDescription id="dialog-description"></DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
+          <div className="grid grid-cols-1 items-center gap-4">
+            <Label htmlFor="title" className="text-left">
+              Title
+            </Label>
+
+            <Input
+              id="title"
+              value={titleInput}
+              onChange={(e) => setTitleInput(e.target.value)}
+              className="col-span-3 placeholder:text-gray-400"
+              placeholder="Meeting title"
+            />
+          </div>
           <div className="grid grid-cols-1 items-center gap-4">
             <Label htmlFor="description" className="text-left">
               Description
@@ -44,7 +65,8 @@ function NewMeetingDialog({ setIsOpen, isOpen, schedule }) {
               id="description"
               value={descriptionInput}
               onChange={(e) => setDescriptionInput(e.target.value)}
-              className="col-span-3"
+              className="col-span-3 placeholder:text-gray-400"
+              placeholder="Meeting description"
             />
           </div>
           <div
@@ -85,10 +107,18 @@ function NewMeetingDialog({ setIsOpen, isOpen, schedule }) {
         </div>
         <DialogFooter>
           <Button
-            type="submit"
+            onClick={async () => {
+              const callId = await createMeeting(client, "default", {
+                date,
+                descriptionInput,
+                titleInput,
+              });
+              console.log(callId);
+              router.push(`/meeting/${callId}`);
+            }}
             className="bg-[#0E78F9] w-full hover:bg-[#2a6fc4]"
           >
-            Save changes
+            Create & Join
           </Button>
         </DialogFooter>
       </DialogContent>
