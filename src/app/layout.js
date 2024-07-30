@@ -6,6 +6,7 @@ import NavLink from "@/components/NavLink";
 import { links } from "@/constants/links";
 import TopBar from "@/components/TopBar";
 import NavDrawer from "@/components/NavDrawer";
+import StreamVideoProvider from "@/providers/StreamVideoProvider";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
@@ -18,14 +19,16 @@ export default function RootLayout({ children }) {
     <ClerkProvider>
       <html lang="en">
         <body className={inter.className}>
-          <div className="flex h-full text-white">
-            <SideBar />
+          <StreamVideoProvider>
+            <div className="flex h-full text-white">
+              <SideBar />
 
-            <div className="flex-1 flex flex-col  overflow-y-auto ">
-              <TopBar />
-              <main className="flex-1  p-5">{children}</main>
+              <div className="flex-1 flex flex-col  overflow-y-auto ">
+                <TopBar />
+                <main className="flex-1  p-5">{children}</main>
+              </div>
             </div>
-          </div>
+          </StreamVideoProvider>
         </body>
       </html>
     </ClerkProvider>
