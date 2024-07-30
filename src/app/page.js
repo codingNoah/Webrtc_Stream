@@ -1,10 +1,11 @@
+import FutureMeetings from "@/components/FutureMeetings";
 import MeetingSection from "@/components/MeetingSection";
 import UpcomingMeeting from "@/components/UpcomingMeeting";
 import { meetingTypes } from "@/constants/meetingTypes";
 
 export default function Home() {
   return (
-    <main className="">
+    <main>
       <UpcomingMeeting />
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 mt-5">
         {meetingTypes.map(({ title, description, icon, color }, index) => {
@@ -19,6 +20,7 @@ export default function Home() {
           );
         })}
       </section>
+      <FutureMeetings />
     </main>
   );
 }

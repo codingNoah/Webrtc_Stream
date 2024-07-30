@@ -21,7 +21,7 @@ export default function RootLayout({ children }) {
           <div className="flex h-full text-white">
             <SideBar />
 
-            <div className="flex-1 flex flex-col  ">
+            <div className="flex-1 flex flex-col  overflow-y-auto ">
               <TopBar />
               <main className="flex-1  p-5">{children}</main>
             </div>

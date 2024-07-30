@@ -4,8 +4,6 @@ import React from "react";
 function MeetingSection({ title, description, icon, color }) {
   let renderedIcon;
 
-  console.log("color", color);
-
   switch (icon) {
     case "Plus":
       renderedIcon = <Plus />;
