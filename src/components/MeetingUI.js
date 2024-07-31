@@ -10,6 +10,7 @@ import {
 } from "@stream-io/video-react-sdk";
 import React, { useEffect, useState } from "react";
 import ParticipantsDrawer from "./ParticipantsDrawer";
+import { useRouter } from "next/navigation";
 
 function MeetingUI() {
   const { useCallCustomData, useMicrophoneState, useCameraState } =
@@ -17,10 +18,10 @@ function MeetingUI() {
   const [setupCompleted, setSetupCompleted] = useState(false);
 
   const custom = useCallCustomData();
-
   const micState = useMicrophoneState();
   const camState = useCameraState();
   const call = useCall();
+  const router = useRouter();
 
   useEffect(() => {
     call.camera.disable();
@@ -78,7 +79,10 @@ function MeetingUI() {
         <>
           <div className=" px-5 py-4 rounded  ">
             <SpeakerLayout />
-            <CallControls className="text-white" />
+            <CallControls
+              onLeave={() => router.push("/")}
+              className="text-white"
+            />
           </div>
         </>
       )}

@@ -10,8 +10,9 @@ import {
 } from "@stream-io/video-react-sdk";
 import { Loader2 } from "lucide-react";
 import React, { useEffect, useState } from "react";
+import { OwnCapability } from "@stream-io/video-react-sdk";
 
-function Meeting({ params }) {
+function Meeting({ params, searchParams }) {
   const [callNotFound, setCallNotFound] = useState(false);
 
   const [call, setCall] = useState();
@@ -22,10 +23,19 @@ function Meeting({ params }) {
   useEffect(() => {
     const loadCall = async () => {
       try {
-        const currentCall = client.call("default", callID);
+        const currentCall = client.call(searchParams.type, callID);
 
-        console.log(currentCall);
         await currentCall.get();
+        console.log(currentCall);
+        const canJoin = currentCall.permissionsContext.hasPermission(
+          OwnCapability.JOIN_CALL
+        );
+
+        console.log(canJoin);
+
+        if (!canJoin) {
+          throw new Error("");
+        }
 
         setCall(currentCall);
       } catch (error) {
@@ -36,7 +46,15 @@ function Meeting({ params }) {
     };
 
     loadCall();
-  }, [callID, client]);
+  }, [callID, client, searchParams.type]);
+
+  if (callNotFound) {
+    return (
+      <div className="text-2xl h-full flex justify-center items-center">
+        Call with id: {callID} not found
+      </div>
+    );
+  }
 
   if (!call) {
     return (
