@@ -10,15 +10,12 @@ export const createMeeting = async (
 
     const call = client.call(type, callId);
 
-    console.log(creator, members);
     const emails = members
       .split(",")
       .map((member) => member.trim())
       .filter((m) => m !== creator.email);
-    console.log("emails", emails);
 
     const memberIds = await getUsers(emails);
-    console.log(memberIds);
 
     const modifiedMembers = memberIds.map((id) => {
       return { user_id: id, role: "call_member" };
@@ -26,12 +23,14 @@ export const createMeeting = async (
 
     modifiedMembers.push({ user_id: creator.id, role: "admin" });
 
-    console.log(modifiedMembers);
+    console.log(date);
 
     await call.getOrCreate({
       data: {
         custom: { title: titleInput, description: descriptionInput },
-        startsAt: date ? date : new Date(),
+        startsAt: date
+          ? date.toISOString()
+          : new Date(Date.now()).toISOString(),
         members: modifiedMembers,
       },
     });
@@ -39,5 +38,18 @@ export const createMeeting = async (
     return callId;
   } catch (error) {
     console.log(error);
+    return null;
   }
+};
+
+export const queryCalls = async (client, userId) => {
+  const { calls } = await client.queryCalls({
+    filter_conditions: {
+      $or: [{ created_by_user_id: userId }, { members: { $in: [userId] } }],
+    },
+    limit: 10,
+    watch: true,
+  });
+
+  return calls;
 };

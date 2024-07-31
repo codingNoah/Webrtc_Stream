@@ -22,12 +22,7 @@ function FutureMeetings() {
       <section className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
         {futureMeetings.map(({ title, date }, index) => {
           return (
-            <FutureMeeting
-              key={index}
-              title={title}
-              date={date}
-              previous={false}
-            />
+            <Meetings key={index} title={title} date={date} previous={false} />
           );
         })}
       </section>
@@ -35,12 +30,14 @@ function FutureMeetings() {
   );
 }
 
-export const FutureMeeting = ({ title, date, previous }) => {
+export const Meetings = ({ title, startsAt, endedAt, previous }) => {
   return (
     <div className="bg-[#1c1f2e] py-5 px-4 rounded">
       <BookMarked width={30} height={30} className="mb-4" />
       <h1 className="font-bold text-xl">{title}</h1>
-      <section className="text-[#ECF0FF] mt-1">{date}</section>
+      <section className="text-[#ECF0FF] mt-1">
+        {previous ? `EndedAt: ${endedAt}` : `StartsAt: ${startsAt}`}
+      </section>
       <section
         className={` ${
           previous ? "hidden" : "flex"

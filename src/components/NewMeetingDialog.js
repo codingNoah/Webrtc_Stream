@@ -26,6 +26,7 @@ import { createMeeting } from "@/utils/meeting";
 import { useStreamVideoClient } from "@stream-io/video-react-sdk";
 import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
+import { useToast } from "@/components/ui/use-toast";
 
 const MeetingType = ({ type, members, setMeeting }) => {
   console.log(type, members);
@@ -104,9 +105,10 @@ function NewMeetingDialog({ setIsOpen, isOpen, schedule }) {
 
   const client = useStreamVideoClient();
   const router = useRouter();
-
   const { isLoaded, isSignedIn, user } = useUser();
-  console.log("user", user.id);
+  const { toast } = useToast();
+
+  console.log("date", date);
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -206,7 +208,16 @@ function NewMeetingDialog({ setIsOpen, isOpen, schedule }) {
                 }
               );
               console.log(callId);
-              router.push(`/meeting/${callId}?type=${meeting.type}`);
+
+              if (!callId) {
+                toast({
+                  title: "Uh oh! Something went wrong.",
+                  description: "Meeting is not created. Please try again!",
+                  className: "bg-[#2a6fc4] border-none",
+                });
+              } else {
+                router.push(`/meeting/${callId}?type=${meeting.type}`);
+              }
             }}
             className={`${
               (meeting.type === "private" &&

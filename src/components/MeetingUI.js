@@ -13,8 +13,13 @@ import ParticipantsDrawer from "./ParticipantsDrawer";
 import { useRouter } from "next/navigation";
 
 function MeetingUI() {
-  const { useCallCustomData, useMicrophoneState, useCameraState } =
-    useCallStateHooks();
+  const {
+    useCallCustomData,
+    useMicrophoneState,
+    useCameraState,
+    useCallEndedAt,
+    useCallEndedBy,
+  } = useCallStateHooks();
   const [setupCompleted, setSetupCompleted] = useState(false);
 
   const custom = useCallCustomData();
@@ -22,11 +27,23 @@ function MeetingUI() {
   const camState = useCameraState();
   const call = useCall();
   const router = useRouter();
+  const callEndedBy = useCallEndedBy();
+  const callEndedAt = useCallEndedAt();
+
+  console.log(callEndedAt, callEndedBy);
 
   useEffect(() => {
     call.camera.disable();
     call.microphone.disable();
   }, [call.camera, call.microphone]);
+
+  if (callEndedAt) {
+    return (
+      <div className="my-20  text-red-900 flex justify-center text-2xl items-center">
+        Call has ended
+      </div>
+    );
+  }
 
   if (!micState.hasBrowserPermission || !camState.hasBrowserPermission) {
     return (
@@ -83,6 +100,16 @@ function MeetingUI() {
               onLeave={() => router.push("/")}
               className="text-white"
             />
+            <div
+              className=""
+              onClick={async () => {
+                console.log("Ending...");
+                await call.endCall();
+                console.log("Call ended");
+              }}
+            >
+              End Call For Everyone
+            </div>
           </div>
         </>
       )}
