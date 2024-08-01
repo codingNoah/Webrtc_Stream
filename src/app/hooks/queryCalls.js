@@ -29,11 +29,19 @@ function UseQueyCalls(userId) {
       !call.state.endedAt
   );
   const previousCalls = calls.filter((call) => call.state.endedAt);
+  const liveCalls = calls.filter(
+    (call) =>
+      !call.state.endedAt &&
+      call.state.startsAt &&
+      new Date(call.state.startsAt) < new Date()
+  );
 
   return {
     loading,
     upcomingCalls,
     previousCalls,
+    liveCalls,
+    allCalls: calls,
   };
 }
 
