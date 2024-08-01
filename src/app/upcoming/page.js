@@ -4,19 +4,10 @@ import { Meetings } from "@/components/FutureMeetings";
 import UseQueyCalls from "../hooks/queryCalls";
 import { useUser } from "@clerk/nextjs";
 import { Loader2 } from "lucide-react";
-const futureMeetings = [
-  {
-    title: "Team Sync: Sprint Planning & Updates",
-    date: "March 15, 2024 - 10:00 AM",
-  },
-  {
-    title: "Project Pulse Check: Weekly Standup ",
-    date: "March 15, 2024 - 10:00 AM",
-  },
-];
+
+
 function Page() {
   const { user } = useUser();
-
   const { upcomingCalls, loading } = UseQueyCalls(user.id);
 
   if (loading) {

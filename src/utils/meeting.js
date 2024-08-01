@@ -3,9 +3,11 @@ import { getUsers } from "@/app/actions";
 export const createMeeting = async (
   client,
   creator,
-  { date, descriptionInput, titleInput, type, members }
+  { date, descriptionInput, titleInput, type, members },
+  setCreateMeetingLoading
 ) => {
   try {
+    setCreateMeetingLoading(true);
     const callId = crypto.randomUUID();
 
     const call = client.call(type, callId);
@@ -28,25 +30,23 @@ export const createMeeting = async (
         ? {
             custom: { title: titleInput, description: descriptionInput },
             starts_at: date
-              ? date.toISOString()
+              ? new Date(date).toISOString()
               : new Date(Date.now()).toISOString(),
           }
         : {
             custom: { title: titleInput, description: descriptionInput },
             starts_at: date
-              ? date.toISOString()
+              ? new Date(date).toISOString()
               : new Date(Date.now()).toISOString(),
             members: modifiedMembers,
           };
 
-    console.log(data);
     await call.getOrCreate({
       data: data,
     });
 
     return callId;
   } catch (error) {
-    console.log(error);
     return null;
   }
 };

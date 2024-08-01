@@ -1,5 +1,8 @@
+"use client";
 import { BookMarked, Copy } from "lucide-react";
 import React from "react";
+import { useToast } from "@/components/ui/use-toast";
+import { changeDateFormat } from "@/utils/date";
 
 const futureMeetings = [
   {
@@ -31,12 +34,15 @@ function FutureMeetings() {
 }
 
 export const Meetings = ({ title, startsAt, endedAt, previous, callId }) => {
+  const { toast } = useToast();
+  const date = changeDateFormat(previous ? endedAt : startsAt);
+
   return (
     <div className="bg-[#1c1f2e] py-5 px-4 rounded">
       <BookMarked width={30} height={30} className="mb-4" />
       <h1 className="font-bold text-xl">{title}</h1>
       <section className="text-[#ECF0FF] mt-1">
-        {previous ? `EndedAt: ${endedAt}` : `StartsAt: ${startsAt}`}
+        {previous ? `EndedAt: ${date}` : `StartsAt: ${date}`}
       </section>
       <section
         className={` ${
@@ -46,9 +52,20 @@ export const Meetings = ({ title, startsAt, endedAt, previous, callId }) => {
         <div className="bg-[#0E78F9] px-4 py-2  rounded cursor-pointer">
           Start
         </div>
-        <div className="flex  gap-1 items-center bg-[#2a2e42] px-3 py-2 rounded  cursor-pointer">
-          <Copy className="w-[18px] h-[18px] " /> Copy Invitation{" "}
-          {`${process.env.NEXT_PUBLIC_MEETING_URL}/${callId}`}
+        <div
+          className="flex  gap-1 items-center bg-[#2a2e42] px-3 py-2 rounded  cursor-pointer"
+          onClick={() => {
+            navigator.clipboard.writeText(
+              `${process.env.NEXT_PUBLIC_MEETING_URL}/${callId}`
+            );
+
+            toast({
+              title: "Copied to clipboard",
+              className: "bg-[#2a6fc4] border-none text-white",
+            });
+          }}
+        >
+          Copy <Copy className="w-[18px] h-[18px] " />
         </div>
       </section>
     </div>

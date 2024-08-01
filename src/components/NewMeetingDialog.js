@@ -10,7 +10,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { CalendarRange, Router } from "lucide-react";
+import { CalendarRange, Copy, Loader2, Router } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { format } from "date-fns";
 
@@ -96,7 +96,8 @@ const MeetingType = ({ type, members, setMeeting }) => {
 };
 function NewMeetingDialog({ setIsOpen, isOpen, schedule }) {
   const [meetingLink, setMeetingLink] = useState("");
-  const [date, setDate] = useState();
+  const [createMeetingLoading, setCreateMeetingLoading] = useState(false);
+  const [date, setDate] = useState(new Date(Date.now()));
   const [descriptionInput, setDescriptionInput] = useState("");
   const [titleInput, setTitleInput] = useState("");
   const [meeting, setMeeting] = useState({
@@ -106,13 +107,25 @@ function NewMeetingDialog({ setIsOpen, isOpen, schedule }) {
 
   const client = useStreamVideoClient();
   const router = useRouter();
-  const { isLoaded, isSignedIn, user } = useUser();
+  const { user } = useUser();
   const { toast } = useToast();
 
-  console.log("date", date);
-
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(e) => {
+        setIsOpen(false);
+        setMeetingLink("");
+        setDate();
+        setDescriptionInput("");
+        setTitleInput("");
+
+        setMeeting({
+          type: "default",
+          members: "",
+        });
+      }}
+    >
       <DialogContent className="sm:max-w-[425px] text-white bg-[#131622] border border-[#0E78F9]  ">
         <DialogHeader>
           <DialogTitle>
@@ -189,13 +202,25 @@ function NewMeetingDialog({ setIsOpen, isOpen, schedule }) {
             </Popover>
           </div>
         </div>
-        <DialogFooter>
+        <DialogFooter className="flex flex-col">
+          {createMeetingLoading && (
+            <div
+              className={`${
+                createMeetingLoading ? "flex" : "hidden"
+              } bg-gray-400 py-2 text-gray-200  items-center justify-center w-full cursor-not-allowed`}
+            >
+              Creating.... <Loader2 className="animate-spin" />
+            </div>
+          )}
           {schedule ? (
             <Button
               onClick={async () => {
                 console.log({
-                  email: user.emailAddresses[0].emailAddress,
-                  id: user.id,
+                  date,
+                  descriptionInput,
+                  titleInput,
+                  type: meeting.type,
+                  members: meeting.members,
                 });
 
                 const callId = await createMeeting(
@@ -207,8 +232,12 @@ function NewMeetingDialog({ setIsOpen, isOpen, schedule }) {
                     titleInput,
                     type: meeting.type,
                     members: meeting.members,
-                  }
+                  },
+                  setCreateMeetingLoading
                 );
+
+                setCreateMeetingLoading(false);
+
                 console.log(callId);
 
                 if (callId) {
@@ -229,9 +258,10 @@ function NewMeetingDialog({ setIsOpen, isOpen, schedule }) {
                 }
               }}
               className={`${
-                (meeting.type === "private" &&
+                ((meeting.type === "private" &&
                   meeting.members.split(",").length > 1) ||
-                meeting.type === "default"
+                  meeting.type === "default") &&
+                !createMeetingLoading
                   ? ""
                   : "hidden"
               } bg-[#0E78F9] w-full hover:bg-[#2a6fc4]`}
@@ -255,8 +285,10 @@ function NewMeetingDialog({ setIsOpen, isOpen, schedule }) {
                     titleInput,
                     type: meeting.type,
                     members: meeting.members,
-                  }
+                  },
+                  setCreateMeetingLoading
                 );
+                setCreateMeetingLoading(false);
                 console.log(callId);
 
                 if (!callId) {
@@ -266,13 +298,14 @@ function NewMeetingDialog({ setIsOpen, isOpen, schedule }) {
                     className: "bg-[#2a6fc4] border-none",
                   });
                 } else {
-                  router.push(`/meeting/${callId}?type=${meeting.type}`);
+                  router.push(`/meeting/${callId}`);
                 }
               }}
               className={`${
-                (meeting.type === "private" &&
+                ((meeting.type === "private" &&
                   meeting.members.split(",").length > 1) ||
-                meeting.type === "default"
+                  meeting.type === "default") &&
+                !createMeetingLoading
                   ? ""
                   : "hidden"
               } bg-[#0E78F9] w-full hover:bg-[#2a6fc4]`}
@@ -280,11 +313,12 @@ function NewMeetingDialog({ setIsOpen, isOpen, schedule }) {
               Create & Join
             </Button>
           )}
-          <div>{meetingLink}</div>
+
           <div
             className={`${
               meeting.type === "default" ||
-              meeting.members.split(",").length > 1
+              meeting.members.split(",").length > 1 ||
+              createMeetingLoading
                 ? "hidden"
                 : "flex"
             } bg-gray-400 py-2 text-gray-500  items-center justify-center w-full cursor-not-allowed`}
@@ -292,6 +326,21 @@ function NewMeetingDialog({ setIsOpen, isOpen, schedule }) {
             Create & Join
           </div>
         </DialogFooter>
+        <div
+          className={`${
+            meetingLink ? "flex" : "hidden"
+          }  gap-1 items-center justify-center bg-[#2a2e42] hover:bg-[#32374e] px-3 py-2 rounded  cursor-pointer`}
+          onClick={() => {
+            navigator.clipboard.writeText(meetingLink);
+
+            toast({
+              title: "Copied to clipboard",
+              className: "bg-[#2a6fc4] border-none text-white",
+            });
+          }}
+        >
+          Copy <Copy className="w-[18px] h-[18px] " />
+        </div>
       </DialogContent>
     </Dialog>
   );
