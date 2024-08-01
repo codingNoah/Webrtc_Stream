@@ -34,7 +34,6 @@ function Page() {
         <h1 className="font-bold text-xl mb-4">Previous Meetings</h1>
         <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {previousCalls.map(({ state }, index) => {
-            console.log(state.startsAt);
             return (
               <Meetings
                 key={index}

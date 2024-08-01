@@ -23,7 +23,10 @@ function UseQueyCalls(userId) {
   }, [client, userId]);
 
   const upcomingCalls = calls.filter(
-    (call) => call.state.startsAt && new Date(call.state.startsAt) > new Date()
+    (call) =>
+      call.state.startsAt &&
+      new Date(call.state.startsAt) > new Date() &&
+      !call.state.endedAt
   );
   const previousCalls = calls.filter((call) => call.state.endedAt);
 

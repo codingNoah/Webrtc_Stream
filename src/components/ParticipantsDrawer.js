@@ -9,8 +9,9 @@ function ParticipantsDrawer() {
       <SheetTrigger asChild>
         <div className=" cursor-pointer hover:underline">Participants</div>
       </SheetTrigger>
+
       <SheetContent
-        className="w-[264px] bg-[#1c1f2e] overflow-y-auto px-2 py-6  text-white "
+        className="w-[264px] bg-[#1c1f2e]  overflow-y-auto px-2 py-6  text-white "
         side={"right"}
       >
         <CallParticipantsList />

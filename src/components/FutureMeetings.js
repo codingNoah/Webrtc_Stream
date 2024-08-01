@@ -30,7 +30,7 @@ function FutureMeetings() {
   );
 }
 
-export const Meetings = ({ title, startsAt, endedAt, previous }) => {
+export const Meetings = ({ title, startsAt, endedAt, previous, callId }) => {
   return (
     <div className="bg-[#1c1f2e] py-5 px-4 rounded">
       <BookMarked width={30} height={30} className="mb-4" />
@@ -47,7 +47,8 @@ export const Meetings = ({ title, startsAt, endedAt, previous }) => {
           Start
         </div>
         <div className="flex  gap-1 items-center bg-[#2a2e42] px-3 py-2 rounded  cursor-pointer">
-          <Copy className="w-[18px] h-[18px] " /> Copy Invitation
+          <Copy className="w-[18px] h-[18px] " /> Copy Invitation{" "}
+          {`${process.env.NEXT_PUBLIC_MEETING_URL}/${callId}`}
         </div>
       </section>
     </div>

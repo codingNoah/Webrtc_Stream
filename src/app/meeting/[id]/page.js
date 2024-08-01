@@ -7,6 +7,7 @@ import {
   CallControls,
   useCall,
   useStreamVideoClient,
+  useCallStateHooks,
 } from "@stream-io/video-react-sdk";
 import { Loader2 } from "lucide-react";
 import React, { useEffect, useState } from "react";
@@ -19,23 +20,36 @@ function Meeting({ params, searchParams }) {
 
   const callID = params.id;
   const client = useStreamVideoClient();
+  const { useHasPermissions } = useCallStateHooks();
 
   useEffect(() => {
     const loadCall = async () => {
       try {
+        const { calls } = await client.queryCalls({
+          filter_conditions: {
+            id: { $eq: callID },
+          },
+        });
+
+        if (calls.length === 0) {
+          setCallNotFound(true);
+          return;
+        }
+
+        console.log(calls[0].type, callID);
         const currentCall = client.call(searchParams.type, callID);
 
-        await currentCall.get();
-        console.log(currentCall);
         const canJoin = currentCall.permissionsContext.hasPermission(
           OwnCapability.JOIN_CALL
         );
 
-        console.log(canJoin);
+        console.log("canJoin", canJoin);
 
-        if (!canJoin) {
-          throw new Error("");
-        }
+        // console.log(canJoin);
+
+        // if (!canJoin) {
+        //   throw new Error("");
+        // }
 
         setCall(currentCall);
       } catch (error) {

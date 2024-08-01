@@ -23,16 +23,25 @@ export const createMeeting = async (
 
     modifiedMembers.push({ user_id: creator.id, role: "admin" });
 
-    console.log(date);
+    const data =
+      type === "default"
+        ? {
+            custom: { title: titleInput, description: descriptionInput },
+            starts_at: date
+              ? date.toISOString()
+              : new Date(Date.now()).toISOString(),
+          }
+        : {
+            custom: { title: titleInput, description: descriptionInput },
+            starts_at: date
+              ? date.toISOString()
+              : new Date(Date.now()).toISOString(),
+            members: modifiedMembers,
+          };
 
+    console.log(data);
     await call.getOrCreate({
-      data: {
-        custom: { title: titleInput, description: descriptionInput },
-        startsAt: date
-          ? date.toISOString()
-          : new Date(Date.now()).toISOString(),
-        members: modifiedMembers,
-      },
+      data: data,
     });
 
     return callId;

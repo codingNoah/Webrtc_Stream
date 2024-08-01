@@ -95,6 +95,7 @@ const MeetingType = ({ type, members, setMeeting }) => {
   );
 };
 function NewMeetingDialog({ setIsOpen, isOpen, schedule }) {
+  const [meetingLink, setMeetingLink] = useState("");
   const [date, setDate] = useState();
   const [descriptionInput, setDescriptionInput] = useState("");
   const [titleInput, setTitleInput] = useState("");
@@ -189,46 +190,97 @@ function NewMeetingDialog({ setIsOpen, isOpen, schedule }) {
           </div>
         </div>
         <DialogFooter>
-          <Button
-            onClick={async () => {
-              console.log({
-                email: user.emailAddresses[0].emailAddress,
-                id: user.id,
-              });
-
-              const callId = await createMeeting(
-                client,
-                { email: user.emailAddresses[0].emailAddress, id: user.id },
-                {
-                  date,
-                  descriptionInput,
-                  titleInput,
-                  type: meeting.type,
-                  members: meeting.members,
-                }
-              );
-              console.log(callId);
-
-              if (!callId) {
-                toast({
-                  title: "Uh oh! Something went wrong.",
-                  description: "Meeting is not created. Please try again!",
-                  className: "bg-[#2a6fc4] border-none",
+          {schedule ? (
+            <Button
+              onClick={async () => {
+                console.log({
+                  email: user.emailAddresses[0].emailAddress,
+                  id: user.id,
                 });
-              } else {
-                router.push(`/meeting/${callId}?type=${meeting.type}`);
-              }
-            }}
-            className={`${
-              (meeting.type === "private" &&
-                meeting.members.split(",").length > 1) ||
-              meeting.type === "default"
-                ? ""
-                : "hidden"
-            } bg-[#0E78F9] w-full hover:bg-[#2a6fc4]`}
-          >
-            Create & Join
-          </Button>
+
+                const callId = await createMeeting(
+                  client,
+                  { email: user.emailAddresses[0].emailAddress, id: user.id },
+                  {
+                    date,
+                    descriptionInput,
+                    titleInput,
+                    type: meeting.type,
+                    members: meeting.members,
+                  }
+                );
+                console.log(callId);
+
+                if (callId) {
+                  setMeetingLink(
+                    `${process.env.NEXT_PUBLIC_MEETING_URL}/${callId}`
+                  );
+                  toast({
+                    title: "Call created",
+                    description: `Your meeting is scheduled for ${date}`,
+                    className: "bg-[#2a6fc4] border-none",
+                  });
+                } else {
+                  toast({
+                    title: "Uh oh! Something went wrong.",
+                    description: "Meeting is not created. Please try again!",
+                    className: "bg-[#2a6fc4] border-none",
+                  });
+                }
+              }}
+              className={`${
+                (meeting.type === "private" &&
+                  meeting.members.split(",").length > 1) ||
+                meeting.type === "default"
+                  ? ""
+                  : "hidden"
+              } bg-[#0E78F9] w-full hover:bg-[#2a6fc4]`}
+            >
+              Create
+            </Button>
+          ) : (
+            <Button
+              onClick={async () => {
+                console.log({
+                  email: user.emailAddresses[0].emailAddress,
+                  id: user.id,
+                });
+
+                const callId = await createMeeting(
+                  client,
+                  { email: user.emailAddresses[0].emailAddress, id: user.id },
+                  {
+                    date,
+                    descriptionInput,
+                    titleInput,
+                    type: meeting.type,
+                    members: meeting.members,
+                  }
+                );
+                console.log(callId);
+
+                if (!callId) {
+                  toast({
+                    title: "Uh oh! Something went wrong.",
+                    description: "Meeting is not created. Please try again!",
+                    className: "bg-[#2a6fc4] border-none",
+                  });
+                } else {
+                  router.push(`/meeting/${callId}?type=${meeting.type}`);
+                }
+              }}
+              className={`${
+                (meeting.type === "private" &&
+                  meeting.members.split(",").length > 1) ||
+                meeting.type === "default"
+                  ? ""
+                  : "hidden"
+              } bg-[#0E78F9] w-full hover:bg-[#2a6fc4]`}
+            >
+              Create & Join
+            </Button>
+          )}
+          <div>{meetingLink}</div>
           <div
             className={`${
               meeting.type === "default" ||

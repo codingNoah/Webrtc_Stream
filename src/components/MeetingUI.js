@@ -1,16 +1,34 @@
 import {
   CallControls,
-  CallParticipantsList,
   DeviceSettings,
-  PaginatedGridLayout,
+  OwnCapability,
   SpeakerLayout,
   VideoPreview,
   useCall,
   useCallStateHooks,
 } from "@stream-io/video-react-sdk";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import ParticipantsDrawer from "./ParticipantsDrawer";
 import { useRouter } from "next/navigation";
+import { useToast } from "@/components/ui/use-toast";
+import { Loader2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 function MeetingUI() {
   const {
@@ -18,19 +36,21 @@ function MeetingUI() {
     useMicrophoneState,
     useCameraState,
     useCallEndedAt,
-    useCallEndedBy,
+    useCallStartsAt,
+    useCallCallingState,
+    useHasPermissions,
   } = useCallStateHooks();
-  const [setupCompleted, setSetupCompleted] = useState(false);
 
   const custom = useCallCustomData();
   const micState = useMicrophoneState();
   const camState = useCameraState();
   const call = useCall();
   const router = useRouter();
-  const callEndedBy = useCallEndedBy();
+  const callStartsAt = useCallStartsAt();
   const callEndedAt = useCallEndedAt();
-
-  console.log(callEndedAt, callEndedBy);
+  const canEndCall = useHasPermissions(OwnCapability.END_CALL);
+  const callingState = useCallCallingState();
+  const { toast } = useToast();
 
   useEffect(() => {
     call.camera.disable();
@@ -45,10 +65,29 @@ function MeetingUI() {
     );
   }
 
+  if (callStartsAt && new Date(callStartsAt) > new Date()) {
+    return (
+      <div className="my-20  text-red-900 flex justify-center text-2xl items-center">
+        Call is in the future at {callStartsAt}
+      </div>
+    );
+  }
+
   if (!micState.hasBrowserPermission || !camState.hasBrowserPermission) {
     return (
       <div className="text-center  py-20 text-xl">
         Please grant camera and audio access to join the meeting.
+      </div>
+    );
+  }
+
+  if (callingState === "joining") {
+    return (
+      <div className="my-20 flex justify-center items-center">
+        <section className="flex flex-col items-center gap-y-4">
+          <Loader2 className="animate-spin h-16 w-16" />
+          <section className="text-2xl">Joining meeting....</section>
+        </section>
       </div>
     );
   }
@@ -59,7 +98,7 @@ function MeetingUI() {
         <h1 className="font-bold text-4xl capitalize">{custom.title}</h1>
         <ParticipantsDrawer />
       </section>
-      {!setupCompleted ? (
+      {callingState !== "joined" ? (
         <div className="flex flex-col justify-center items-center mt-16">
           <div className="w-full sm:w-[500px] ">
             <VideoPreview className="w-full" />
@@ -84,8 +123,23 @@ function MeetingUI() {
             <div
               className="bg-[#0E78F9] px-4 py-2 rounded cursor-pointer mt-4"
               onClick={async () => {
-                setSetupCompleted(true);
-                await call.join();
+                try {
+                  await call.join();
+                } catch (error) {
+                  if (error.status === 403) {
+                    toast({
+                      title: "Oh, something went wrong!",
+                      description: `You are not allowed to join this meeting`,
+                      className: "bg-[#2a6fc4] border-none",
+                    });
+                  } else {
+                    toast({
+                      title: "Oh, something went wrong!",
+                      description: `Unable to join meeting. Please try again.`,
+                      className: "bg-[#2a6fc4] border-none",
+                    });
+                  }
+                }
               }}
             >
               Join Meeting
@@ -100,15 +154,45 @@ function MeetingUI() {
               onLeave={() => router.push("/")}
               className="text-white"
             />
-            <div
-              className=""
-              onClick={async () => {
-                console.log("Ending...");
-                await call.endCall();
-                console.log("Call ended");
-              }}
-            >
-              End Call For Everyone
+            <div className={`${canEndCall ? "flex" : "hidden"} justify-center`}>
+              <AlertDialog>
+                <AlertDialogTrigger>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <p className="text-red-500 cursor-pointer hover:underline">
+                          End call for everyone
+                        </p>
+                      </TooltipTrigger>
+                      <TooltipContent className="text-white bg-[#1c1f2e]">
+                        <p>This action can't be undone</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </AlertDialogTrigger>
+                <AlertDialogContent className="text-white bg-[#0E78F9] border-none">
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>
+                      Are you absolutely sure?
+                    </AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This action cannot be undone. This will permanently ends
+                      the call for all participants and can not be joined again.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={async () => {
+                        await call.endCall();
+                        router.push("/");
+                      }}
+                    >
+                      Continue
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
           </div>
         </>

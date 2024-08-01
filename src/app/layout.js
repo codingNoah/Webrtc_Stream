@@ -23,11 +23,11 @@ export default function RootLayout({ children }) {
       <html lang="en">
         <body className={inter.className}>
           <StreamVideoProvider>
+            <Toaster />
             <div className="flex h-full text-white">
               <SideBar />
 
               <div className="flex-1 flex flex-col  overflow-y-auto ">
-                <Toaster />
                 <TopBar />
                 <main className="flex-1  p-5">{children}</main>
               </div>
