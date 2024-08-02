@@ -165,7 +165,7 @@ function MeetingUI() {
                         </p>
                       </TooltipTrigger>
                       <TooltipContent className="text-white bg-[#1c1f2e]">
-                        <p>This action can't be undone</p>
+                        <p>This action can&#39;t be undone</p>
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
