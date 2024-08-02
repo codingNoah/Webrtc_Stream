@@ -33,7 +33,7 @@ function FutureMeetings() {
   return (
     <div className="mt-5">
       <section className="flex flex-col gap-y-2 justify-between sm:flex-row sm:gap-y-0">
-        <h1 className="font-bold text-xl">Today's Upcoming Meetings</h1>
+        <h1 className="font-bold text-xl">Today&#39;s Upcoming Meetings</h1>
         <section className="text-[#ECF0FF]">See all</section>
       </section>
       <section className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
