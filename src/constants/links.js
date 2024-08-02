@@ -19,9 +19,4 @@ export const links = [
     path: "/recordings",
     icon: "Video",
   },
-  {
-    name: "Personal Room",
-    path: "/personal",
-    icon: "Plus",
-  },
 ];
