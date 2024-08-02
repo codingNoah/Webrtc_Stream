@@ -41,7 +41,8 @@ function FutureMeetings() {
           console.log("call.state.title", call.state.title);
           if (
             !call.state.startsAt ||
-            !areDatesEqual(call.state.startsAt, new Date(Date.now()))
+            !areDatesEqual(call.state.startsAt, new Date(Date.now())) ||
+            call.state.endedAt
           ) {
             return;
           }
