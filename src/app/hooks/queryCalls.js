@@ -15,10 +15,10 @@ function UseQueyCalls(userId) {
         limit: 10,
         watch: true,
       });
+      console.log("calls", calls);
       setCalls(calls);
       setLoading(false);
     };
-
     loadCalls();
   }, [client, userId]);
 

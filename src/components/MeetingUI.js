@@ -68,7 +68,7 @@ function MeetingUI() {
   if (callStartsAt && new Date(callStartsAt) > new Date()) {
     return (
       <div className="my-20  text-red-900 flex justify-center text-2xl items-center">
-        Call is in the future at {callStartsAt}
+        Call is in the future at {callStartsAt.toDateString()}
       </div>
     );
   }

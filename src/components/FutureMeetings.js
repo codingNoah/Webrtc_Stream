@@ -1,8 +1,10 @@
 "use client";
-import { BookMarked, Copy } from "lucide-react";
-import React from "react";
+import { BookMarked, Copy, Loader2 } from "lucide-react";
+import React, { useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
-import { changeDateFormat } from "@/utils/date";
+import { areDatesEqual, changeDateFormat } from "@/utils/date";
+import UseQueyCalls from "@/app/hooks/queryCalls";
+import { useUser } from "@clerk/nextjs";
 
 const futureMeetings = [
   {
@@ -16,6 +18,18 @@ const futureMeetings = [
 ];
 
 function FutureMeetings() {
+  const { user } = useUser();
+
+  const { loading, allCalls } = UseQueyCalls(user.id);
+
+  if (loading) {
+    return (
+      <div className=" mt-32 flex justify-center">
+        <Loader2 className="animate-spin h-10 w-10" />
+      </div>
+    );
+  }
+
   return (
     <div className="mt-5">
       <section className="flex flex-col gap-y-2 justify-between sm:flex-row sm:gap-y-0">
@@ -23,9 +37,23 @@ function FutureMeetings() {
         <section className="text-[#ECF0FF]">See all</section>
       </section>
       <section className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
-        {futureMeetings.map(({ title, date }, index) => {
+        {allCalls.map((call, index) => {
+          console.log("call.state.title", call.state.title);
+          if (
+            !call.state.startsAt ||
+            !areDatesEqual(call.state.startsAt, new Date(Date.now()))
+          ) {
+            return;
+          }
+
           return (
-            <Meetings key={index} title={title} date={date} previous={false} />
+            <Meetings
+              key={index}
+              title={call.state.custom.title}
+              startsAt={call.state.startsAt}
+              previous={false}
+              callId={call.id}
+            />
           );
         })}
       </section>
@@ -35,7 +63,7 @@ function FutureMeetings() {
 
 export const Meetings = ({ title, startsAt, endedAt, previous, callId }) => {
   const { toast } = useToast();
-  const date = changeDateFormat(previous ? endedAt : startsAt);
+  const date = previous ? endedAt.toDateString() : startsAt.toDateString();
 
   return (
     <div className="bg-[#1c1f2e] py-5 px-4 rounded">
